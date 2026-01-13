@@ -1,12 +1,38 @@
 import React, { useState } from 'react';
-
+import EntityCard from './EntityCard';
+import AddProductModal from './AddProductModal';
 
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState('My Products');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [items, setItems] = useState<any[]>([]);
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+    const handleSaveItem = (itemData: any) => {
+        if (editingIndex !== null) {
+            // Update existing item
+            const newItems = [...items];
+            newItems[editingIndex] = itemData;
+            setItems(newItems);
+            setEditingIndex(null);
+        } else {
+            // Create new item
+            setItems([...items, itemData]);
+        }
+        setIsModalOpen(false);
+    };
+
+    const handleEdit = (index: number) => {
+        setEditingIndex(index);
+        setIsModalOpen(true);
+    };
+
+    const handleAddNew = () => {
+        setEditingIndex(null);
+        setIsModalOpen(true);
+    };
 
     const renderContent = () => {
-        // Since the user hasn't configured anything, we show the empty state for all tabs
-        // In a real app, this would check if data exists for the tab
         let itemLabel = '';
         switch (activeTab) {
             case 'My Products':
@@ -25,54 +51,117 @@ const Dashboard = () => {
                 itemLabel = 'Item';
         }
 
+        const filteredItems = items.filter(item => {
+            // Simple mapping: 'My Products' matches type 'Product'
+            // In a real app, this logic might be more robust
+            return item.type === itemLabel;
+        });
+
+        if (filteredItems.length > 0) {
+            return (
+                <>
+                    <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+                        <button onClick={handleAddNew} style={{
+                            background: 'var(--accent-primary)',
+                            color: 'white',
+                            border: 'none',
+                            padding: '8px 16px',
+                            borderRadius: '8px',
+                            fontWeight: '600',
+                            fontSize: '0.9rem',
+                            cursor: 'pointer'
+                        }}>
+                            + Add {itemLabel}
+                        </button>
+                    </div>
+                    {filteredItems.map((item, index) => (
+                        <EntityCard
+                            key={index}
+                            type={item.type}
+                            name={item.name}
+                            description={item.description}
+                            link={item.link}
+                            stakeholders={item.stakeholders}
+                            onEdit={() => handleEdit(items.indexOf(item))}
+                        />
+                    ))}
+                    <AddProductModal
+                        isOpen={isModalOpen}
+                        onClose={() => {
+                            setIsModalOpen(false);
+                            setEditingIndex(null);
+                        }}
+                        onSave={handleSaveItem}
+                        type={itemLabel}
+                        initialData={editingIndex !== null ? items[editingIndex] : undefined}
+                    />
+                </>
+            );
+        }
+
         return (
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: '400px',
-                border: '1px dashed var(--border-subtle)',
-                borderRadius: '16px',
-                background: 'rgba(255, 255, 255, 0.02)'
-            }}>
-                <div style={{ textAlign: 'center' }}>
-                    <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
-                        You haven't tracked any {activeTab.toLowerCase().replace('my ', '')} yet.
-                    </p>
-                    <button style={{
-                        background: 'var(--accent-primary)',
-                        color: 'white',
-                        border: 'none',
-                        padding: '12px 24px',
-                        borderRadius: '8px',
-                        fontWeight: '600',
-                        fontSize: '1rem',
-                        cursor: 'pointer',
-                        transition: 'transform 0.2s'
-                    }}
-                        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-                    >
-                        + Add {itemLabel}
-                    </button>
+            <>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: '400px',
+                    border: '1px dashed var(--border-subtle)',
+                    borderRadius: '16px',
+                    background: 'rgba(255, 255, 255, 0.02)'
+                }}>
+                    <div style={{ textAlign: 'center' }}>
+                        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
+                            You haven't tracked any {activeTab.toLowerCase().replace('my ', '')} yet.
+                        </p>
+                        <button style={{
+                            background: 'var(--accent-primary)',
+                            color: 'white',
+                            border: 'none',
+                            padding: '12px 24px',
+                            borderRadius: '8px',
+                            fontWeight: '600',
+                            fontSize: '1rem',
+                            cursor: 'pointer',
+                            transition: 'transform 0.2s'
+                        }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                            onClick={handleAddNew}
+                        >
+                            + Add {itemLabel}
+                        </button>
+                    </div>
                 </div>
-            </div>
+
+                <AddProductModal
+                    isOpen={isModalOpen}
+                    onClose={() => {
+                        setIsModalOpen(false);
+                        setEditingIndex(null);
+                    }}
+                    onSave={handleSaveItem}
+                    type={itemLabel}
+                    initialData={editingIndex !== null ? items[editingIndex] : undefined}
+                />
+            </>
         );
     };
 
     return (
         <div style={{
-            maxWidth: '680px',
+            maxWidth: '1200px',
             margin: '0 auto',
             width: '100%',
             display: 'flex',
             flexDirection: 'column',
-            gap: '2rem'
+            gap: '2rem',
+            padding: '0 24px'
         }}>
             {/* Header - Minimalist */}
-            <header style={{ marginTop: '20px', marginBottom: '20px' }}>
-                <h1 style={{ fontSize: '2rem', fontWeight: '800', marginBottom: '0.5rem' }}>Battles</h1>
-                <div style={{ display: 'flex', gap: '16px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '16px' }}>
+            <header style={{ marginTop: '0px', marginBottom: '24px' }}>
+                <h1 style={{ fontSize: '2rem', fontWeight: '800', marginBottom: '0.5rem', marginTop: 0 }}>Battles</h1>
+                <div style={{ display: 'flex', gap: '80px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '16px' }}>
                     <Tab active={activeTab === 'My Products'} onClick={() => setActiveTab('My Products')}>My Products</Tab>
                     <Tab active={activeTab === 'My Services'} onClick={() => setActiveTab('My Services')}>My Services</Tab>
                     <Tab active={activeTab === 'My Campaigns'} onClick={() => setActiveTab('My Campaigns')}>My Campaigns</Tab>

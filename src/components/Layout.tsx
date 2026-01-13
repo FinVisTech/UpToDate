@@ -31,7 +31,7 @@ const Layout = ({ children, currentView, onNavigate }: LayoutProps) => {
             </aside>
 
             {/* Main Content */}
-            <main style={{ flex: 1, padding: '40px', overflowY: 'auto' }}>
+            <main style={{ flex: 1, padding: '0 40px', overflowY: 'auto' }}>
                 {children}
             </main>
         </div>
