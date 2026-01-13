@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const TrackingEnv = () => {
     const [competitors, setCompetitors] = useState([
@@ -7,6 +7,17 @@ const TrackingEnv = () => {
     ]);
 
     const [isAdding, setIsAdding] = useState(false);
+    const [newName, setNewName] = useState('');
+    const [newUrl, setNewUrl] = useState('');
+
+    const handleAdd = () => {
+        if (newName && newUrl) {
+            setCompetitors([...competitors, { name: newName, url: newUrl, status: 'Monitoring' }]);
+            setNewName('');
+            setNewUrl('');
+            setIsAdding(false);
+        }
+    };
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -26,7 +37,7 @@ const TrackingEnv = () => {
                         fontWeight: '600',
                         cursor: 'pointer'
                     }}>
-                    + Add Product
+                    {isAdding ? 'Cancel' : '+ Add Product'}
                 </button>
             </header>
 
@@ -34,9 +45,25 @@ const TrackingEnv = () => {
                 <div style={{ padding: '24px', background: 'var(--bg-glass)', borderRadius: '12px', border: '1px solid var(--accent-glow)' }}>
                     <h3 style={{ marginTop: 0 }}>Add New Competitor</h3>
                     <div style={{ display: 'flex', gap: '1rem' }}>
-                        <input type="text" placeholder="Product Name" style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)', background: 'rgba(0,0,0,0.2)', color: 'white' }} />
-                        <input type="text" placeholder="Website URL" style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)', background: 'rgba(0,0,0,0.2)', color: 'white' }} />
-                        <button style={{ padding: '0 24px', background: 'var(--accent-secondary)', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer' }}>Track</button>
+                        <input
+                            type="text"
+                            placeholder="Product Name"
+                            value={newName}
+                            onChange={(e) => setNewName(e.target.value)}
+                            style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                        />
+                        <input
+                            type="text"
+                            placeholder="Website URL"
+                            value={newUrl}
+                            onChange={(e) => setNewUrl(e.target.value)}
+                            style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                        />
+                        <button
+                            onClick={handleAdd}
+                            style={{ padding: '0 24px', background: 'var(--accent-secondary)', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer' }}>
+                            Track
+                        </button>
                     </div>
                 </div>
             )}
