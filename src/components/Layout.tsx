@@ -20,7 +20,7 @@ const Layout = ({ children, currentView, onNavigate }: LayoutProps) => {
                 gap: '2rem'
             }}>
                 <div style={{ fontSize: '1.5rem', fontWeight: '800', background: 'linear-gradient(to right, #8b5cf6, #3b82f6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                    UpToDate
+                    War Room
                 </div>
 
                 <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

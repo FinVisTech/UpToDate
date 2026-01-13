@@ -29,7 +29,7 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
                 gap: '1.5rem'
             }}>
                 <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-                    <h1 style={{ fontSize: '2rem', fontWeight: '800', margin: 0, background: 'linear-gradient(to right, #8b5cf6, #3b82f6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>UpToDate</h1>
+                    <h1 style={{ fontSize: '2rem', fontWeight: '800', margin: 0, background: 'linear-gradient(to right, #8b5cf6, #3b82f6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>War Room</h1>
                     <p style={{ color: 'var(--text-secondary)' }}>Sign in to your founder dashboard</p>
                 </div>
 
