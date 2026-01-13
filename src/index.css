@@ -1,0 +1,34 @@
+:root {
+  /* Premium Dark Theme Palette */
+  --bg-primary: #0f0f12;
+  --bg-secondary: #1a1a1f;
+  --bg-glass: rgba(255, 255, 255, 0.05); /* Glassmorphism base */
+  
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  
+  --accent-primary: #8b5cf6; /* Violet */
+  --accent-secondary: #3b82f6; /* Blue */
+  --accent-glow: rgba(139, 92, 246, 0.5);
+  
+  --border-subtle: #27272a;
+  
+  --font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+}
