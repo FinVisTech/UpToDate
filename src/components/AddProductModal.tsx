@@ -1,5 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import ProductTreeEditor from './ProductTreeEditor';
 
 interface AddProductModalProps {
     isOpen: boolean;
@@ -9,10 +10,13 @@ interface AddProductModalProps {
     initialData?: any;
 }
 
+const DEFAULT_INITIAL_DATA = { name: '', link: '', description: '' };
+
 const AddProductModal = ({ isOpen, onClose, onSave, type, initialData }: AddProductModalProps) => {
     const [name, setName] = useState('');
     const [link, setLink] = useState('');
     const [description, setDescription] = useState('');
+    const [treeData, setTreeData] = useState<any>(null); // To store the full tree structure
     const [stakeholders, setStakeholders] = useState('');
     const [positioning, setPositioning] = useState('');
     const [valueProp, setValueProp] = useState('');
@@ -25,6 +29,7 @@ const AddProductModal = ({ isOpen, onClose, onSave, type, initialData }: AddProd
             setLink(initialData.link || '');
             setDescription(initialData.description || '');
             setStakeholders(initialData.stakeholders || '');
+            setTreeData(initialData); // Pass full initial data to tree
             if (initialData.details) {
                 setPositioning(initialData.details.positioning || '');
                 setValueProp(initialData.details.valueProp || '');
@@ -36,6 +41,13 @@ const AddProductModal = ({ isOpen, onClose, onSave, type, initialData }: AddProd
         }
     }, [isOpen, initialData]);
 
+    const handleTreeChange = useCallback((data: any) => {
+        setName(data.name);
+        setLink(data.link);
+        setDescription(data.description);
+        setTreeData(data);
+    }, []);
+
     const handleSave = () => {
         const newData = {
             type,
@@ -43,6 +55,7 @@ const AddProductModal = ({ isOpen, onClose, onSave, type, initialData }: AddProd
             link,
             description,
             stakeholders,
+            ...treeData, // Include subProducts and treeDataNode
             details: {
                 positioning,
                 valueProp,
@@ -58,6 +71,7 @@ const AddProductModal = ({ isOpen, onClose, onSave, type, initialData }: AddProd
         setName('');
         setLink('');
         setDescription('');
+        setTreeData(null);
         setStakeholders('');
         setPositioning('');
         setValueProp('');
@@ -85,8 +99,8 @@ const AddProductModal = ({ isOpen, onClose, onSave, type, initialData }: AddProd
                 background: '#18181b', // Slightly lighter than pure black for contrast
                 border: '1px solid var(--border-subtle)',
                 borderRadius: '16px',
-                width: '600px',
-                maxWidth: '90vw',
+                width: '1000px', // Wider for tree view
+                maxWidth: '95vw',
                 maxHeight: '90vh',
                 display: 'flex',
                 flexDirection: 'column',
@@ -110,12 +124,17 @@ const AddProductModal = ({ isOpen, onClose, onSave, type, initialData }: AddProd
                 {/* Scrollable Content */}
                 <div className="modal-content-scroll" style={{ padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-                    {/* General Section */}
-                    <Section title="General Information">
-                        <InputGroup label={`${type} Name`} placeholder={`e.g. Project Apollo`} value={name} onChange={setName} />
-                        <InputGroup label="Link" placeholder="https://..." value={link} onChange={setLink} />
-                        <TextAreaGroup label="Description" placeholder="What does this product do?" value={description} onChange={setDescription} />
-                    </Section>
+                    {/* Product Tree Editor Section */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#fff', borderLeft: '3px solid var(--accent-primary)', paddingLeft: '12px' }}>Product Tree Configuration</h3>
+                        <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                            Configure your product tree. The Root Node represents the main {type}.
+                        </p>
+                        <ProductTreeEditor
+                            initialData={initialData || DEFAULT_INITIAL_DATA}
+                            onChange={handleTreeChange}
+                        />
+                    </div>
 
                     {/* Stakeholders Section */}
                     <Section title="Key Stakeholders">

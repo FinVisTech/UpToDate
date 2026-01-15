@@ -1,38 +1,93 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import EntityCard from './EntityCard';
 import AddProductModal from './AddProductModal';
+import { supabase } from '../lib/supabase';
 
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState('My Products');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [items, setItems] = useState<any[]>([]);
-    const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [editingItem, setEditingItem] = useState<any | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const handleSaveItem = (itemData: any) => {
-        if (editingIndex !== null) {
-            // Update existing item
-            const newItems = [...items];
-            newItems[editingIndex] = itemData;
-            setItems(newItems);
-            setEditingIndex(null);
+    // Fetch items from Supabase
+    useEffect(() => {
+        fetchItems();
+    }, []);
+
+    const fetchItems = async () => {
+        setIsLoading(true);
+        const { data, error } = await supabase
+            .from('items')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching items:', error);
         } else {
-            // Create new item
-            setItems([...items, itemData]);
+            setItems(data || []);
         }
-        setIsModalOpen(false);
+        setIsLoading(false);
     };
 
-    const handleEdit = (index: number) => {
-        setEditingIndex(index);
+    const handleSaveItem = async (itemData: any) => {
+        // Prepare data for insertion/update
+
+        // If we are editing, we should have an ID.
+        // However, the modal passes back the full object.
+        // Let's check if we have an ID in editingItem or itemData.
+
+        const targetId = editingItem?.id || itemData.id;
+
+        const payload = {
+            type: itemData.type,
+            name: itemData.name,
+            link: itemData.link,
+            description: itemData.description,
+            stakeholders: itemData.stakeholders,
+            details: itemData.details,
+            tree_data: itemData.treeData,
+            sub_products: itemData.subProducts
+        };
+
+        if (targetId) {
+            // Update
+            const { error } = await supabase
+                .from('items')
+                .update(payload)
+                .eq('id', targetId);
+
+            if (error) console.error('Error updating item:', error);
+        } else {
+            // Insert
+            const { error } = await supabase
+                .from('items')
+                .insert([payload]);
+
+            if (error) console.error('Error creating item:', error);
+        }
+
+        // Refresh list
+        fetchItems();
+        setIsModalOpen(false);
+        setEditingItem(null);
+    };
+
+    const handleEdit = (item: any) => {
+        setEditingItem(item);
         setIsModalOpen(true);
     };
 
     const handleAddNew = () => {
-        setEditingIndex(null);
+        setEditingItem(null);
         setIsModalOpen(true);
     };
 
     const renderContent = () => {
+        if (isLoading) {
+            return <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>Loading...</div>;
+        }
+
         let itemLabel = '';
         switch (activeTab) {
             case 'My Products':
@@ -52,8 +107,6 @@ const Dashboard = () => {
         }
 
         const filteredItems = items.filter(item => {
-            // Simple mapping: 'My Products' matches type 'Product'
-            // In a real app, this logic might be more robust
             return item.type === itemLabel;
         });
 
@@ -74,26 +127,26 @@ const Dashboard = () => {
                             + Add {itemLabel}
                         </button>
                     </div>
-                    {filteredItems.map((item, index) => (
+                    {filteredItems.map((item) => (
                         <EntityCard
-                            key={index}
+                            key={item.id}
                             type={item.type}
                             name={item.name}
                             description={item.description}
                             link={item.link}
                             stakeholders={item.stakeholders}
-                            onEdit={() => handleEdit(items.indexOf(item))}
+                            onEdit={() => handleEdit(item)}
                         />
                     ))}
                     <AddProductModal
                         isOpen={isModalOpen}
                         onClose={() => {
                             setIsModalOpen(false);
-                            setEditingIndex(null);
+                            setEditingItem(null);
                         }}
                         onSave={handleSaveItem}
                         type={itemLabel}
-                        initialData={editingIndex !== null ? items[editingIndex] : undefined}
+                        initialData={editingItem || undefined}
                     />
                 </>
             );
@@ -138,11 +191,11 @@ const Dashboard = () => {
                     isOpen={isModalOpen}
                     onClose={() => {
                         setIsModalOpen(false);
-                        setEditingIndex(null);
+                        setEditingItem(null);
                     }}
                     onSave={handleSaveItem}
                     type={itemLabel}
-                    initialData={editingIndex !== null ? items[editingIndex] : undefined}
+                    initialData={editingItem || undefined}
                 />
             </>
         );
