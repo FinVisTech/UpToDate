@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Chrome, User as UserIcon } from 'lucide-react';
 
@@ -204,8 +205,6 @@ const Login = () => {
                         {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
                     </span>
                 </div>
-
-                <DebugAuth />
             </div>
         </div>
     );

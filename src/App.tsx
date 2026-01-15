@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import TrackingEnv from './components/TrackingEnv';
